@@ -91,6 +91,8 @@ std::vector<cv::Point2f> WindmillDetect::process(const cv::Mat &frame) {
                     cv::Point2f pts[4];
                     rrects[j].points(pts);
 #ifdef DEBUG
+                    cv::Point2f pos = (((pts[0] + pts[2]) / 2) + ((pts[1] + pts[3]) / 2)) / 2;
+                    cv::circle(show, pos, 5, cv::Scalar(0,0,255));
                     drawTetragon(show, pts, cv::Scalar(255,255,255));
 #endif
                     aimArea = {pts[0], pts[1], pts[2], pts[3]};
