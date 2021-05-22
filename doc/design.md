@@ -24,7 +24,7 @@
 
 OpenCV 这个函数其实是可以在查找轮廓时记录层次信息的，但是感觉不大好写，最后便放弃了，选择直接不分层次查找轮廓。层次信息可能用好了会更高效吧。
 
-使用 `cv::minAreaRect` 获得到轮廓的最小包围矩形，然后通过判断矩形的大小，可以判断是否为可能的扇叶。若直接使用`cv::contourArea` 可能会因为点不是顺次相连的而导致面积计算错误。
+使用 `cv::minAreaRect` 获得到轮廓的最小包围矩形（返回值为 `cv::RotatedRect` 旋转矩形），然后通过判断矩形的大小，可以判断是否为可能的扇叶。注意，若使用`cv::contourArea`，可能会因为轮廓中点不是顺次相连的而导致面积计算错误。
 
 ### 特征提取
 
@@ -40,15 +40,15 @@ OpenCV 这个函数其实是可以在查找轮廓时记录层次信息的，但�
 
 但是 `cv::RotatedRect` 包裹的扇叶形状存在旋转角度的问题，拉直后可能会有左右的不同，担心 SVM 不能识别，故没有使用。
 
-不过好像是可以判断出拉直后扇叶的朝向的，比如用主成分分析？
+> 不过好像是可以判断出拉直后扇叶的朝向的，比如用主成分分析（PCA）可以解决，也就是分析出二维上点的分布走向；主成分分析相关函数和 SVM 一样，在 `cv::ml` 里面提供。
 
-写代码过程中，被 `cv::RotatedRect` 坑了比较久，主要是不清楚 `points` 方法返回的四个点到底是一个怎么样的顺序，以及 `width`、`height` 到底表示哪条边。看了 OpenCV 的文档以及网上的一些资料，也没有很明白，而且好像是错的（可能是太困了）。但是要想正确拉直图像，是必须弄清楚这个的。最后总算弄明白了，看下边这个图：
+写代码过程中，被 `cv::RotatedRect` 坑了比较久，主要是不清楚 `points` 方法返回的四个点到底是一个怎么样的顺序，以及 `width`、`height` 到底表示哪条边。看了 OpenCV 的文档以及网上的一些资料，也没有很明白，而且好像是错的（可能是太困了）。但是要想正确拉直图像，是必须要弄清楚这些的。最后总算弄明白了，看下边这个图：
 
 ![cv::RotatedRect](./assets/RotatedRect.svg)
 
-也就是，最左边的点是 0 号点，然后顺时针编号；遇到的第一条边是 `height`，紧接着是 `width`，和长短无关。
+也就是，最左边的点是 0 号点，然后顺时针编号；遇到的第一条边是 `height`，紧接着是 `width`，和长短无关。（OpenCV 版本为 4.5.1）
 
-
+> 旋转矩形的 `height` 和 `width` 属性在 `cv::RotatedRect::size` 里面；各端点的坐标，通过向 `points` 方法传入一个 `cv::Point2f` 的数组获取。
 
 明白了之后，拉直图像就轻松了。
 
@@ -87,15 +87,15 @@ cv::imshow("straighten", straighten_rect);
 
 ### 判断旋转矩形之间的相交关系
 
-这个资料真不好找，网上有些是自己实现的，很麻烦，而 OpenCV 其实有相应的函数，但是它的官方文档藏在一个角落里，也没有从 `cv::RotatedRect` 过去的链接。
+这个资料真不好找，网上有些是自己实现的，很麻烦，而 OpenCV 其实有相应的函数，但是它的官方文档藏在一个角落里，并且也没有从 `cv::RotatedRect` 转过去的链接。
 
-> 不过有兴趣的话其实可以了解一下怎么实现的，很巧妙；还有前面提到轮廓种的点没有按照顺序时点的排序问题，也很有意思。
+> 不过有兴趣的话其实可以了解一下怎么实现的，很巧妙；还有前面提到的，如何将轮廓中各点按照顺序排列的问题，也很有意思。
 
-`cv::RotatedRect` 的官方文档，介绍了一些基本的成员函数：
+下面是 `cv::RotatedRect` 的官方文档，介绍了一些基本的成员和成员函数，但是没有特别实用的东西：
 
 [OpenCV: cv::RotatedRect Class Reference](https://docs.opencv.org/master/db/dd6/classcv_1_1RotatedRect.html)
 
-关于 `cv::rotatedRectangleIntersection` 函数的介绍在这个链接的最后（链接里也有一些其他的函数，很有意思）：
+关于 `cv::rotatedRectangleIntersection` 函数的介绍在这个链接的最后，并不是很容易发现（链接里也有一些其他的函数，都很有意思）：
 
 [OpenCV: Structural Analysis and Shape Descriptors](https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html)
 
