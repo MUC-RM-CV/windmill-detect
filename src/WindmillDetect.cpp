@@ -47,7 +47,7 @@ std::vector<cv::Point2f> WindmillDetect::process(const cv::Mat &frame) {
         rrects.push_back(r);
     }
 
-    std::vector<cv::Point2f> aimArea({{0,0}, {0,0}, {0,0}, {0,0}});
+    std::vector<cv::Point2f> aimArea;
 
     bool found_fan = false;
     for (int i = 0; i < contours.size(); ++i) {
