@@ -1,6 +1,8 @@
 #ifndef MUC_CLEMENTINE_WINDMILLDETECT_H
 #define MUC_CLEMENTINE_WINDMILLDETECT_H
 
+#define DEBUG
+
 #include <cmath>
 #include <opencv2/opencv.hpp>
 #include <vector>

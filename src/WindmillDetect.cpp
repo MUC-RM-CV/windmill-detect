@@ -5,11 +5,11 @@ using cv::Point;
 
 void WindmillDetect::drawTetragon(cv::Mat &image, cv::Point2f *vertices, const cv::Scalar &color)  {
     using cv::Scalar;
-    int thickness = ceil(5e-3 * image.cols);
+    int thickness = (int)ceil(5e-3 * image.cols);
     for (int j = 0; j < 4; j++) {
         cv::line(image, vertices[j], vertices[(j + 1) % 4], color, thickness);
     }
-    int radius = ceil(1e-2 * image.cols);
+    int radius = (int)ceil(1e-2 * image.cols);
     //cv::circle(image, vertices[0], radius, Scalar(  0,   0, 255), -1); // red
     //cv::circle(image, vertices[1], radius, Scalar(  0, 255, 255), -1); // yellow
     //cv::circle(image, vertices[2], radius, Scalar(255,   0, 255), -1); // purple / violet
