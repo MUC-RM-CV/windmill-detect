@@ -26,10 +26,14 @@ private:
         return sum;
     }
 
+    bool draw_result;
+
 public:
     cv::Mat gray;
     cv::Mat binary;
     cv::Mat show;
+
+    WindmillDetect(bool render_result) : draw_result(render_result) {}
 
     void setElement(const cv::Mat& e) { element = e; }
 

@@ -31,9 +31,9 @@ std::vector<cv::Point2f> WindmillDetect::process(const cv::Mat &frame) {
     //vector<Vec4i> hierarchy;
     cv::findContours(binary, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
-#ifdef DEBUG
-    frame.copyTo(show);
-#endif
+    if (this->draw_result) {
+        frame.copyTo(show);
+    }
 
     auto frame_area = frame.cols * frame.rows;
 
@@ -77,11 +77,11 @@ std::vector<cv::Point2f> WindmillDetect::process(const cv::Mat &frame) {
             // std::cout << "-> others  " << "Contour area: " << area << "\n";
         }
 
-#ifdef DEBUG
-        cv::Point2f srcPt[4];
-        rrect.points(srcPt);
-        drawTetragon(show, srcPt, cv::Scalar(238, 165, 65));
-#endif
+        if (this->draw_result) {
+            cv::Point2f srcPt[4];
+            rrect.points(srcPt);
+            drawTetragon(show, srcPt, cv::Scalar(238, 165, 65));
+        }
 
         if (found_fan) {
             for (int j = 0; j < contours.size(); ++j) {
@@ -90,11 +90,13 @@ std::vector<cv::Point2f> WindmillDetect::process(const cv::Mat &frame) {
                 if (rotatedRectangleIntersection(rrects[j], rrects[i], vertices) == cv::INTERSECT_FULL) {
                     cv::Point2f pts[4];
                     rrects[j].points(pts);
-#ifdef DEBUG
-                    cv::Point2f pos = (((pts[0] + pts[2]) / 2) + ((pts[1] + pts[3]) / 2)) / 2;
-                    cv::circle(show, pos, 5, cv::Scalar(0,0,255));
-                    drawTetragon(show, pts, cv::Scalar(255,255,255));
-#endif
+                    
+                    if (this->draw_result) {
+                        cv::Point2f pos = (((pts[0] + pts[2]) / 2) + ((pts[1] + pts[3]) / 2)) / 2;
+                        cv::circle(show, pos, 5, cv::Scalar(0,0,255));
+                        drawTetragon(show, pts, cv::Scalar(255,255,255));
+                    }
+
                     aimArea = {pts[0], pts[1], pts[2], pts[3]};
                     break;
                 }
